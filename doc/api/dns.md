@@ -744,7 +744,7 @@ be an array of objects with the following properties:
 ## `dns.resolveTlsa(hostname, callback)`
 
 <!-- YAML
-added: TODO
+added: REPLACEME
 -->
 
 <!--lint disable no-undefined-references list-item-bullet-indent-->
@@ -764,6 +764,8 @@ array of objects with these properties:
 * `selector`
 * `match`
 * `data`
+
+<!-- eslint-skip -->
 
 ```js
 {
@@ -1399,7 +1401,7 @@ the following properties:
 ### `dnsPromises.resolveTlsa(hostname)`
 
 <!-- YAML
-added: TODO
+added: REPLACEME
 -->
 
 * `hostname` {string}
@@ -1412,6 +1414,8 @@ with these properties:
 * `selector`
 * `match`
 * `data`
+
+<!-- eslint-skip -->
 
 ```js
 {

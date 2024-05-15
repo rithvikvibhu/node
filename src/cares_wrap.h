@@ -460,9 +460,8 @@ struct NsTraits final {
 struct TlsaTraits final {
   static constexpr const char* name = "resolveTlsa";
   static int Send(QueryWrap<TlsaTraits>* wrap, const char* name);
-  static int Parse(
-      QueryWrap<TlsaTraits>* wrap,
-      const std::unique_ptr<ResponseData>& response);
+  static int Parse(QueryWrap<TlsaTraits>* wrap,
+                   const std::unique_ptr<ResponseData>& response);
 };
 
 struct TxtTraits final {

@@ -41,7 +41,7 @@
 #include <unordered_set>
 
 #ifndef T_TLSA
-# define T_TLSA   52 /* TLSA certificate association */
+#define T_TLSA 52 /* TLSA certificate association */
 #endif
 
 #ifndef T_CAA
@@ -358,11 +358,10 @@ int ParseCaaReply(
   return ARES_SUCCESS;
 }
 
-int ParseTlsaReply(
-    Environment* env,
-    unsigned char* buf,
-    int len,
-    Local<Array> ret) {
+int ParseTlsaReply(Environment* env,
+                   unsigned char* buf,
+                   int len,
+                   Local<Array> ret) {
   EscapableHandleScope handle_scope(env->isolate());
 
   // Manage memory using standardard smart pointer std::unique_tr
@@ -384,12 +383,11 @@ int ParseTlsaReply(
   uint32_t offset = ret->Length();
   size_t rr_count = ares_dns_record_rr_cnt(dnsrec_temp, ARES_SECTION_ANSWER);
 
-  for (size_t i=0; i < rr_count; i++) {
+  for (size_t i = 0; i < rr_count; i++) {
     const ares_dns_rr_t* rr =
         ares_dns_record_rr_get(dnsrec_temp, ARES_SECTION_ANSWER, i);
 
-    if (ares_dns_rr_get_type(rr) != ARES_REC_TYPE_TLSA)
-      continue;
+    if (ares_dns_rr_get_type(rr) != ARES_REC_TYPE_TLSA) continue;
 
     unsigned char certusage = ares_dns_rr_get_u8(rr, ARES_RR_TLSA_CERT_USAGE);
     unsigned char selector = ares_dns_rr_get_u8(rr, ARES_RR_TLSA_SELECTOR);
@@ -402,18 +400,22 @@ int ParseTlsaReply(
     memcpy(data_ab->Data(), data, data_len);
 
     Local<Object> tlsa_rec = Object::New(env->isolate());
-    tlsa_rec->Set(env->context(),
-                  env->cert_usage_string(),
-                  Integer::NewFromUnsigned(env->isolate(), certusage)).Check();
-    tlsa_rec->Set(env->context(),
-                  env->selector_string(),
-                  Integer::NewFromUnsigned(env->isolate(), selector)).Check();
-    tlsa_rec->Set(env->context(),
-                  env->match_string(),
-                  Integer::NewFromUnsigned(env->isolate(), match)).Check();
-    tlsa_rec->Set(env->context(),
-                  env->data_string(),
-                  data_ab).Check();
+    tlsa_rec
+        ->Set(env->context(),
+              env->cert_usage_string(),
+              Integer::NewFromUnsigned(env->isolate(), certusage))
+        .Check();
+    tlsa_rec
+        ->Set(env->context(),
+              env->selector_string(),
+              Integer::NewFromUnsigned(env->isolate(), selector))
+        .Check();
+    tlsa_rec
+        ->Set(env->context(),
+              env->match_string(),
+              Integer::NewFromUnsigned(env->isolate(), match))
+        .Check();
+    tlsa_rec->Set(env->context(), env->data_string(), data_ab).Check();
 
     ret->Set(env->context(), offset + i, tlsa_rec).Check();
   }
@@ -1121,8 +1123,7 @@ int AnyTraits::Parse(
 
   /* Parse TLSA records */
   status = ParseTlsaReply(env, buf, len, ret);
-  if (status != ARES_SUCCESS && status != ARES_ENODATA)
-    return status;
+  if (status != ARES_SUCCESS && status != ARES_ENODATA) return status;
 
   /* Parse CAA records */
   status = ParseCaaReply(env, buf, len, ret, true);
@@ -1292,11 +1293,9 @@ int NsTraits::Parse(
   return ARES_SUCCESS;
 }
 
-int TlsaTraits::Parse(
-    QueryTlsaWrap* wrap,
-    const std::unique_ptr<ResponseData>& response) {
-  if (UNLIKELY(response->is_host))
-    return ARES_EBADRESP;
+int TlsaTraits::Parse(QueryTlsaWrap* wrap,
+                      const std::unique_ptr<ResponseData>& response) {
+  if (UNLIKELY(response->is_host)) return ARES_EBADRESP;
 
   unsigned char* buf = response->buf.data;
   int len = response->buf.size;
@@ -1307,8 +1306,7 @@ int TlsaTraits::Parse(
 
   Local<Array> tlsa_records = Array::New(env->isolate());
   int status = ParseTlsaReply(env, buf, len, tlsa_records);
-  if (status != ARES_SUCCESS)
-    return status;
+  if (status != ARES_SUCCESS) return status;
 
   wrap->CallOnComplete(tlsa_records);
   return ARES_SUCCESS;
