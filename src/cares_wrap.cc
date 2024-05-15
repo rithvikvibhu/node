@@ -369,7 +369,6 @@ int ParseTlsaReply(Environment* env,
     void operator()(ares_dns_record_t* ptr) const noexcept {
       ares_dns_record_destroy(ptr);
     }
-
   };
   using ares_unique_ptr = std::unique_ptr<ares_dns_record_t[], AresDeleter>;
 
