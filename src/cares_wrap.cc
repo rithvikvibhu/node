@@ -364,28 +364,20 @@ int ParseTlsaReply(Environment* env,
                    Local<Array> ret) {
   EscapableHandleScope handle_scope(env->isolate());
 
-  // Manage memory using standardard smart pointer std::unique_tr
-  struct AresDeleter {
-    void operator()(ares_dns_record_t* ptr) const noexcept {
-      ares_dns_record_destroy(ptr);
-    }
-  };
-  using ares_unique_ptr = std::unique_ptr<ares_dns_record_t[], AresDeleter>;
+  ares_dns_record_t* dnsrec = nullptr;
 
-  ares_dns_record_t* dnsrec_temp = nullptr;
-  const ares_unique_ptr dnsrec(dnsrec_temp);
-
-  int status = ares_dns_parse(buf, len, 0, &dnsrec_temp);
+  int status = ares_dns_parse(buf, len, 0, &dnsrec);
   if (status != ARES_SUCCESS) {
+    ares_dns_record_destroy(dnsrec);
     return status;
   }
 
   uint32_t offset = ret->Length();
-  size_t rr_count = ares_dns_record_rr_cnt(dnsrec_temp, ARES_SECTION_ANSWER);
+  size_t rr_count = ares_dns_record_rr_cnt(dnsrec, ARES_SECTION_ANSWER);
 
   for (size_t i = 0; i < rr_count; i++) {
     const ares_dns_rr_t* rr =
-        ares_dns_record_rr_get(dnsrec_temp, ARES_SECTION_ANSWER, i);
+        ares_dns_record_rr_get(dnsrec, ARES_SECTION_ANSWER, i);
 
     if (ares_dns_rr_get_type(rr) != ARES_REC_TYPE_TLSA) continue;
 
@@ -420,6 +412,7 @@ int ParseTlsaReply(Environment* env,
     ret->Set(env->context(), offset + i, tlsa_rec).Check();
   }
 
+  ares_dns_record_destroy(dnsrec);
   return ARES_SUCCESS;
 }
 
